@@ -1,25 +1,38 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import {
+  Controller,
+  Get,
+  Patch,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
-import { RolesGuard } from 'src/common/decorators/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
+import { GetUser } from '@common/decorators/get-user.decorator';
+import { UpdateUserDto } from './dto/update-user.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('user')
-export class UserController {
+export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  async getProfile(@Req() req) {
-    const userId = req.user?.userId;
-    return this.usersService.findById(userId);
+  @Get('me')
+  async getProfile(@GetUser('userId') userId: string) {
+    return this.usersService.getById(userId);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  @Get('all')
-  getAllUsers(@Req() req) {
-    const userId = req.user?.userId;
-    return this.usersService.getAll(userId);
+  @Patch('me')
+  @HttpCode(HttpStatus.OK)
+  async updateProfile(
+    @GetUser('userId') userId: string,
+    @Body() dto: UpdateUserDto,
+  ) {
+    return this.usersService.update(userId, dto);
+  }
+
+  @Get('all') // Optional: admin-only route
+  async getAllUsers() {
+    return this.usersService.getAll();
   }
 }

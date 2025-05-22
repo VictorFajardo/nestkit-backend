@@ -1,7 +1,7 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { ConfigService } from '@config/config.service';
+import { PrismaService } from '@prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -20,15 +20,15 @@ export class TokenService {
       this.jwt.signAsync(
         { sub: userId, email },
         {
-          secret: this.config.get<string>('JWT_SECRET'),
-          expiresIn: this.config.get<string>('JWT_EXPIRES_IN') || '15m',
+          secret: this.config.jwtSecret,
+          expiresIn: this.config.jwtExpiresIn,
         },
       ),
       this.jwt.signAsync(
         { sub: userId, email },
         {
-          secret: this.config.get<string>('JWT_REFRESH_SECRET'),
-          expiresIn: this.config.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d',
+          secret: this.config.jwtRefreshSecret,
+          expiresIn: this.config.jwtRefreshExpiresIn,
         },
       ),
     ]);
