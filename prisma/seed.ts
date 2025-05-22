@@ -10,6 +10,7 @@ async function main() {
         email: 'john.doe@company.com',
         name: 'John Doe',
         password: await bcrypt.hash('password@123', 10),
+        role: 'ADMIN',
       },
       {
         email: 'jane.doe@business.com',

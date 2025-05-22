@@ -1,79 +1,150 @@
-# 🧰 NestKit Backend
+# 🚀 NestKit – Modular Auth-Ready NestJS Backend
 
-A modular, reusable NestJS backend foundation with Auth, Roles, and Prisma.
+NestKit is a production-ready, modular backend starter built with [NestJS](https://nestjs.com/), featuring robust authentication, authorization, and scalable architecture out of the box.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 📦 Features
 
-## Project setup
+- ✅ **Email/Password Authentication** (JWT + Refresh Token)
+- 🔐 **Role-Based Authorization**
+- ♻️ **Refresh Token Rotation** with hashed storage
+- 📫 **Password Reset Flow (optional)** with token + email integration
+- 🧰 Modular & Clean Codebase
+- 🔧 Environment-based Config Management
+- 🧪 Ready for Testing & Extension
+- 🗃️ **PostgreSQL + Prisma ORM**
 
-```bash
-$ npm install
-```
+---
 
-## Compile and run the project
+## 🚀 Getting Started
 
-```bash
-# development
-$ npm run start
+### Prerequisites
 
-# watch mode
-$ npm run start:dev
+- Node.js (v18+)
+- Docker + Docker Compose
+- PostgreSQL (Docker recommended)
 
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Clone and Setup
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+git clone https://github.com/your-org/nestkit.git
+cd nestkit
+npm install
+cp .env.example .env
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Run the app (with Docker)
 
-## Resources
+```bash
+docker-compose up -d
+npm run prisma:generate
+npm run start:dev
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 📁 Project Structure
 
-## Support
+```
+src/
+├── auth/             # Auth controllers, services, guards, strategies
+│   ├── dto/
+│   ├── guards/
+│   ├── strategies/
+│   ├── token/
+│   └── hash/
+├── users/            # User module & service
+├── common/           # Shared decorators and interfaces
+├── prisma/           # Prisma service and schema
+├── app.module.ts     # Main module
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+## 🔑 Authentication
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+**Endpoints:**
 
-## License
+| Method | URL              | Description               |
+| ------ | ---------------- | ------------------------- |
+| POST   | `/auth/register` | Register new user         |
+| POST   | `/auth/login`    | Login, get access+refresh |
+| POST   | `/auth/refresh`  | Renew access token        |
+| POST   | `/auth/logout`   | Invalidate refresh token  |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+**Protected Route Example:**
+
+| Method | URL             | Auth Required |
+| ------ | --------------- | ------------- |
+| GET    | `/user/profile` | ✅            |
+
+Use Bearer token in `Authorization` header.
+
+---
+
+## 🧪 API Testing Guide
+
+You can test using Postman or curl.
+
+### Register
+
+```http
+POST /auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "securePassword",
+  "name": "Jane Doe"
+}
+```
+
+### Login
+
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "securePassword"
+}
+```
+
+---
+
+## ⚙️ Environment Configuration
+
+Create a `.env` file using `.env.example` as reference.
+
+| Variable               | Description                  |
+| ---------------------- | ---------------------------- |
+| DATABASE_URL           | PostgreSQL connection string |
+| JWT_SECRET             | Secret for JWT access tokens |
+| JWT_EXPIRES_IN         | Expiry for access tokens     |
+| JWT_REFRESH_SECRET     | Secret for refresh tokens    |
+| JWT_REFRESH_EXPIRES_IN | Expiry for refresh tokens    |
+
+---
+
+## 🧰 Commands
+
+| Command                   | Description                  |
+| ------------------------- | ---------------------------- |
+| `npm run start:dev`       | Start app in watch mode      |
+| `npm run prisma:generate` | Generate Prisma client       |
+| `npm run prisma:migrate`  | Run database migrations      |
+| `docker-compose up -d`    | Start PostgreSQL and pgAdmin |
+
+---
+
+## 📝 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+## 🙌 Credits
+
+Built with ❤️ using [NestJS](https://nestjs.com/), [Prisma](https://www.prisma.io/), and best practices for scalable Node.js backends.

@@ -1,8 +1,14 @@
 // users.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateUserDto } from '../dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { User } from '@prisma/client';
+import { RegisterDto } from 'src/auth/dto/register.dto';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -18,14 +24,21 @@ export class UsersService {
     return user;
   }
 
-  async createUser(data: CreateUserDto) {
+  async createUser(data: RegisterDto) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
     return this.prisma.user.create({
       data: {
         email: data.email,
-        password: hashedPassword,
         name: data.name,
+        password: hashedPassword,
       },
+    });
+  }
+
+  async update(userId: string, data: Partial<User>): Promise<User> {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data,
     });
   }
 
@@ -36,6 +49,26 @@ export class UsersService {
   async listUsers() {
     return this.prisma.user.findMany({
       select: { id: true, email: true, name: true },
+    });
+  }
+
+  async getAll(requestingUserId: string) {
+    const requestingUser = await this.prisma.user.findUnique({
+      where: { id: requestingUserId },
+    });
+
+    if (!requestingUser || requestingUser.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+      },
     });
   }
 }
