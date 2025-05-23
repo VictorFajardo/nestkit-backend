@@ -9,4 +9,6 @@ const envSchema = z.object({
   PORT: z.string().optional(),
 });
 
-export const validatedEnv = envSchema.parse(process.env);
+export const validatedEnv: Record<string, string> = envSchema.parse(
+  process.env,
+);
