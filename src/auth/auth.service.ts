@@ -1,36 +1,81 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
-import * as bcrypt from 'bcrypt';
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import { PrismaService } from '@prisma/prisma.service';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { HashService } from './hash/hash.service';
+import { TokenService } from './token/token.service';
+import { AuthDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
+    private prisma: PrismaService,
+    private hashService: HashService,
+    private tokenService: TokenService,
   ) {}
 
-  async validateUser(email: string, password: string) {
-    const user = await this.usersService.findByEmail(email);
-    if (!user) return null;
+  async register(dto: RegisterDto): Promise<AuthDto> {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
 
-    const passwordValid = await bcrypt.compare(password, user.password);
-    if (!passwordValid) return null;
-
-    const { password: _, ...userData } = user;
-    return userData;
-  }
-
-  async login({ email, password }: { email: string; password: string }) {
-    const user = await this.validateUser(email, password);
-    if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+    if (existingUser) {
+      throw new ForbiddenException('Email already in use');
     }
 
-    const payload = { sub: user.id, email: user.email };
+    const hash = await this.hashService.hashData(dto.password);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        password: hash,
+        name: dto.name,
+        role: 'USER', // Default role
+      },
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
-      user,
+      email: user.email,
+      name: user.name ?? undefined,
+      role: user.role,
     };
+  }
+
+  async login(dto: LoginDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (
+      !user ||
+      !(await this.hashService.compareData(dto.password, user.password))
+    ) {
+      throw new ForbiddenException('Invalid credentials');
+    }
+
+    const tokens = await this.tokenService.generateTokens(user.id, user.email);
+    await this.tokenService.updateRefreshToken(user.id, tokens.refresh_token);
+
+    return tokens;
+  }
+
+  async logout(userId: string) {
+    await this.tokenService.removeRefreshToken(userId);
+  }
+
+  async refreshTokens(userId: string, refreshToken: string) {
+    const isValid = await this.tokenService.verifyRefreshToken(
+      userId,
+      refreshToken,
+    );
+    if (!isValid) throw new ForbiddenException('Invalid refresh token');
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new ForbiddenException('User not found');
+
+    const tokens = await this.tokenService.generateTokens(user.id, user.email);
+    await this.tokenService.updateRefreshToken(user.id, tokens.refresh_token);
+
+    return tokens;
   }
 }

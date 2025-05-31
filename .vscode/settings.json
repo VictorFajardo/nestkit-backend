@@ -1,3 +1,23 @@
 {
-  "cSpell.words": ["devcollab", "nestkit", "pgadmin", "pgdata"]
+  "cSpell.words": [
+    "BUSYTIMEFLAG",
+    "cmdname",
+    "devcollab",
+    "dockerhub",
+    "dpage",
+    "echoerr",
+    "frameguard",
+    "healthcheck",
+    "hostport",
+    "hsts",
+    "ISBUSY",
+    "isready",
+    "nestkit",
+    "pgadmin",
+    "pgdata",
+    "SUPERADMIN",
+    "unallowed",
+    "uuidv",
+    "WAITFORIT"
+  ]
 }

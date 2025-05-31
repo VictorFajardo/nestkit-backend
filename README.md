@@ -1,79 +1,111 @@
-# 🧰 NestKit Backend
+# NestKit Backend
 
-A modular, reusable NestJS backend foundation with Auth, Roles, and Prisma.
+A scalable, production-ready NestJS boilerplate with best practices baked in: modular architecture, throttling, guards, logging, validation, Prisma, and more.
 
-## Description
+## 🚀 Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- ⚙️ Modular structure (Users, Auth, AI, etc.)
+- 🔐 JWT Auth with role-based access control
+- 📈 Rate-limiting with custom Throttler guard
+- 🧰 Prisma ORM with PostgreSQL
+- 🧪 Testing-ready (unit + e2e)
+- 📊 Swagger API docs (`/api`)
+- 🛡️ Security: Helmet, CORS, validation, exception filters
+- 📦 Scalable config management
 
-## Project setup
+---
 
-```bash
-$ npm install
-```
+## 🧪 Getting Started
 
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
+### 1. Clone & Install
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone https://github.com/your-username/nestkit-backend.git
+cd nestkit-backend
+npm install
 ```
 
-## Deployment
+### 2. Configure `.env`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Create a `.env` file based on the example:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+cp .env.example .env
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Update values like `DATABASE_URL`, `JWT_SECRET`, etc.
 
-## Resources
+### 3. Run Dev Server
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+npm run start:dev
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## 🔧 Environment Variables
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| Variable       | Description                 | Example                        |
+| -------------- | --------------------------- | ------------------------------ |
+| `PORT`         | Port app runs on            | `3000`                         |
+| `DATABASE_URL` | Prisma DB connection        | `postgres://user:pass@host/db` |
+| `JWT_SECRET`   | Secret for JWT signing      | `supersecretkey`               |
+| `NODE_ENV`     | Environment (`dev`, `prod`) | `development`                  |
 
-## Stay in touch
+See `.env.example` for a full list.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+## 📘 Scripts
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+| Script       | Description                    |
+| ------------ | ------------------------------ |
+| `start:dev`  | Run in watch mode (dev)        |
+| `build`      | Compile TS -> JS               |
+| `start:prod` | Run compiled app in production |
+| `lint`       | Run ESLint                     |
+| `test`       | Run unit tests                 |
+| `test:e2e`   | Run end-to-end tests           |
+| `seed:dev`   | Seed dev database (WIP)        |
+
+---
+
+## 🛠️ Tech Stack
+
+- [NestJS](https://nestjs.com/)
+- [Prisma](https://www.prisma.io/)
+- [JWT](https://jwt.io/)
+- [Swagger](https://swagger.io/)
+- [Helmet](https://helmetjs.github.io/)
+- [Winston](https://github.com/winstonjs/winston)
+
+---
+
+## 🧩 Folder Structure
+
+```
+src/
+├── auth/               # Auth module
+├── users/              # Users module
+├── ai/                 # AI feature module
+├── common/             # Shared guards, filters, interceptors
+├── config/             # Centralized config files
+├── logger/             # Custom logger module
+├── prisma/             # Prisma service + client
+└── main.ts             # App bootstrap
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+npm run test          # Unit tests
+npm run test:e2e      # E2E tests
+```
+
+---
+
+## 📄 License
+
+MIT — © 2025 Your Name
