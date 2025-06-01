@@ -1,0 +1,20 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install bash for wait-for-it.sh
+RUN apk add --no-cache bash
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+COPY scripts/wait-for-it.sh /app/wait-for-it.sh
+COPY scripts/docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/wait-for-it.sh /app/docker-entrypoint.sh
+
+EXPOSE 3000
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["npm", "run", "start:dev"]

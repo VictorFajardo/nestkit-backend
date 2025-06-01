@@ -45,6 +45,7 @@ export class AuthController {
     @GetUser('userId') userId: string,
     @GetUser('email') email: string,
   ) {
+    console.log('Refreshing tokens for user:', userId, email);
     return this.authService.refreshTokens(userId, email);
   }
 }

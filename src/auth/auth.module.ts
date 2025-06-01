@@ -11,6 +11,7 @@ import { ConfigService } from '@config/config.service';
 import { PrismaService } from '@prisma/prisma.service';
 import { UsersService } from '@users/users.service';
 import { HashService } from './hash/hash.service';
+import { RefreshTokenStrategy } from './strategies/refresh.strategy';
 
 @Module({
   imports: [PassportModule, JwtModule.register({}), UsersModule, ConfigModule],
@@ -18,6 +19,7 @@ import { HashService } from './hash/hash.service';
   providers: [
     AuthService,
     JwtStrategy,
+    RefreshTokenStrategy,
     TokenService,
     ConfigService,
     PrismaService,

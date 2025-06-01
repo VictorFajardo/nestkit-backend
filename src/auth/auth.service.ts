@@ -63,15 +63,14 @@ export class AuthService {
     await this.tokenService.removeRefreshToken(userId);
   }
 
-  async refreshTokens(userId: string, refreshToken: string) {
-    const isValid = await this.tokenService.verifyRefreshToken(
-      userId,
-      refreshToken,
-    );
-    if (!isValid) throw new ForbiddenException('Invalid refresh token');
-
+  async refreshTokens(userId: string, email: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new ForbiddenException('User not found');
+    if (!user || !user.hashedRefreshToken) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    // Optionally: re-verify refresh token from db
+    // This is unnecessary if RefreshAuthGuard already verifies it via `tokenService.verifyRefreshToken()`
 
     const tokens = await this.tokenService.generateTokens(user.id, user.email);
     await this.tokenService.updateRefreshToken(user.id, tokens.refresh_token);
