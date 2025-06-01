@@ -49,6 +49,7 @@ async function bootstrap() {
   app.enableCors(CorsConfig);
   app.disable('x-powered-by');
   app.set('trust proxy', 1);
+  app.enableShutdownHooks();
 
   app.enableVersioning({
     type: VersioningType.URI,

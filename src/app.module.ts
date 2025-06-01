@@ -16,6 +16,7 @@ import { LoggerModule } from 'logger/logger.module';
 import { PrismaService } from '@prisma/prisma.service';
 import { THROTTLER_CONFIG, throttlerConfig } from '@config/throttler.config';
 import { ThrottlerUserGuard } from '@common/guards/throttler-user.guard';
+import { HealthModule } from 'health/health.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ThrottlerUserGuard } from '@common/guards/throttler-user.guard';
     UsersModule,
     AiModule,
     LoggerModule,
+    HealthModule,
     ThrottlerModule.forRoot(throttlerConfig),
   ],
   controllers: [AppController],
