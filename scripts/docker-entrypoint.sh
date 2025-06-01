@@ -3,8 +3,14 @@ set -e
 
 echo "ENTRYPOINT DEBUG - PORT: $PORT"
 
-# Wait for DB (Postgres) to be ready
-/app/wait-for-it.sh db:5432 --timeout=30 --strict -- echo "Database is up"
+echo "⏳ Waiting for database to be ready..."
+/app/wait-for-it.sh db:5432 --timeout=30 --strict -- echo "✅ DB is up"
 
-# Start the app
-exec node dist/main
+echo "🔄 Running migrations..."
+npx prisma migrate deploy
+
+echo "🌱 Running seed script..."
+node dist/prisma/seed.js
+
+echo "🚀 Starting the app..."
+exec node dist/src/main.js --port $PORT

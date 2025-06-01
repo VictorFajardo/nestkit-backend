@@ -1,38 +1,39 @@
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt'; // ✅ ESM-compatible import (not `import * as`)
 
 const prisma = new PrismaClient();
 
-async function seedDevUsers() {
-  await prisma.user.create({
-    data: {
+async function seedDevAdmins() {
+  await prisma.user.upsert({
+    where: { email: 'john.doe@company.com' },
+    update: {}, // nothing to update for now
+    create: {
       email: 'john.doe@company.com',
       name: 'John Doe',
       password: await bcrypt.hash('password@123', 10),
       role: 'ADMIN',
     },
   });
-  // Add more dev seed data here...
 }
 
-async function seedTestUsers() {
-  await prisma.user.create({
-    data: {
+async function seedDevUsers() {
+  await prisma.user.upsert({
+    where: { email: 'jane.doe@business.com' },
+    update: {}, // nothing to update for now
+    create: {
       email: 'jane.doe@business.com',
       name: 'Jane Doe',
       password: await bcrypt.hash('secret#word', 10),
     },
   });
-  // Add minimal test seed data here...
 }
 
 async function main() {
   const env = process.env.NODE_ENV || 'development';
 
   if (env === 'development') {
+    await seedDevAdmins();
     await seedDevUsers();
-  } else if (env === 'test') {
-    await seedTestUsers();
   } else {
     console.log(`No seeding for environment: ${env}`);
   }
@@ -41,10 +42,10 @@ async function main() {
 main()
   .then(async () => {
     await prisma.$disconnect();
-    console.log('Seeding completed');
+    console.log('✅ Seeding completed');
   })
   .catch(async (e) => {
-    console.error('Seeding error:', e);
+    console.error('❌ Seeding error:', e);
     await prisma.$disconnect();
     process.exit(1);
   });

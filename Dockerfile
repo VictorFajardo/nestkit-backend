@@ -7,7 +7,8 @@ WORKDIR /app
 RUN apk add --no-cache bash
 
 COPY package*.json ./
-RUN npm install
+COPY tsconfig.json ./
+RUN npm ci
 
 COPY . .
 RUN npx prisma generate
