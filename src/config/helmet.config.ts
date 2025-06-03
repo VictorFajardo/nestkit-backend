@@ -5,7 +5,7 @@ export const helmetOptions: HelmetOptions = {
     directives: {
       defaultSrc: ["'self'"],
       imgSrc: ["'self'", 'data:', 'https:'],
-      scriptSrc: ["'self'", "'unsafe-inline'"], // Remove 'unsafe-inline' if not needed
+      scriptSrc: ["'self'", "'unsafe-inline'"], // Consider removing 'unsafe-inline' in production
       styleSrc: ["'self'", "'unsafe-inline'"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
@@ -18,6 +18,4 @@ export const helmetOptions: HelmetOptions = {
     includeSubDomains: true,
     preload: true,
   },
-  xssFilter: true,
-  hidePoweredBy: true,
 };

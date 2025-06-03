@@ -40,22 +40,27 @@ async function bootstrap() {
       },
     }),
   );
-
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(
     new GlobalExceptionFilter(),
     new PrismaExceptionFilter(),
   );
   app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
-  app.use(helmet(helmetOptions));
-  app.enableCors(CorsConfig);
   app.disable('x-powered-by');
   app.set('trust proxy', 1);
   app.enableShutdownHooks();
-
   app.enableVersioning({
     type: VersioningType.URI,
   });
+
+  if (process.env.NODE_ENV === 'production') {
+    app.use(helmet(helmetOptions));
+    app.use(helmet.hidePoweredBy());
+    app.enableCors(CorsConfig);
+  } else {
+    app.use(helmet());
+    app.enableCors();
+  }
 
   await app.listen(AppConfig.port);
   console.log(`🚀 App listening on port ${AppConfig.port}`);
