@@ -7,6 +7,7 @@ import { TokenService } from './token/token.service';
 import { AuthDto } from './dto/auth.dto';
 import { AuditLogService } from '@audit-log/audit-log.service';
 import { Request } from 'express';
+import { AuditAction, AuditContext } from '@common/constants/audit.enum';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,7 @@ export class AuthService {
     private auditLogService: AuditLogService,
   ) {}
 
-  async register(dto: RegisterDto): Promise<AuthDto> {
+  async register(dto: RegisterDto, req?: Request): Promise<AuthDto> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -33,7 +34,16 @@ export class AuthService {
         email: dto.email,
         password: hash,
         name: dto.name,
-        role: 'USER', // Default role
+        role: 'USER',
+      },
+    });
+
+    await this.auditLogService.logEvent({
+      userId: user.id,
+      action: AuditAction.USER_REGISTERED,
+      context: AuditContext.AUTH,
+      metadata: {
+        email: user.email,
       },
     });
 
@@ -62,10 +72,14 @@ export class AuthService {
     );
     await this.tokenService.updateRefreshToken(user.id, tokens.refresh_token);
 
-    await this.auditLogService.log(user.id, 'auth.login', {
-      email: user.email,
-      ip: req?.ip || 'unknown',
-      userAgent: req?.headers?.['user-agent'] || 'unknown',
+    await this.auditLogService.logEvent({
+      userId: user.id,
+      action: AuditAction.USER_LOGGED_IN,
+      context: AuditContext.AUTH,
+      metadata: {
+        ip: req?.ip || null,
+        userAgent: req?.headers['user-agent'] || null,
+      },
     });
 
     return tokens;
@@ -73,9 +87,17 @@ export class AuthService {
 
   async logout(userId: string) {
     await this.tokenService.removeRefreshToken(userId);
+
+    await this.auditLogService.logEvent({
+      userId,
+      action: AuditAction.USER_LOGGED_OUT,
+      context: AuditContext.AUTH,
+    });
+
+    return { message: 'Successfully logged out' };
   }
 
-  async refreshTokens(userId: string, email: string) {
+  async refreshTokens(userId: string, email: string, req?: Request) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user || !user.hashedRefreshToken) {
       throw new ForbiddenException('Access Denied');
@@ -86,7 +108,18 @@ export class AuthService {
       user.email,
       user.role,
     );
+
     await this.tokenService.updateRefreshToken(user.id, tokens.refresh_token);
+
+    await this.auditLogService.logEvent({
+      userId,
+      action: AuditAction.USER_REFRESHED_TOKEN,
+      context: AuditContext.AUTH,
+      metadata: {
+        ip: req?.ip || null,
+        userAgent: req?.headers['user-agent'] || null,
+      },
+    });
 
     return tokens;
   }

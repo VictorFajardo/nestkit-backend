@@ -43,7 +43,7 @@ export class UsersController {
 
   @Roles('ADMIN')
   @Get('all')
-  async getAllUsers() {
-    return this.usersService.getAll();
+  async getAllUsers(@GetUser('userId') userId: string) {
+    return this.usersService.getAll(userId);
   }
 }

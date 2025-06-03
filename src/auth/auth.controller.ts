@@ -30,8 +30,8 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  register(@Body() dto: RegisterDto, @Req() req: Request) {
+    return this.authService.register(dto, req);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -46,8 +46,8 @@ export class AuthController {
   refreshTokens(
     @GetUser('userId') userId: string,
     @GetUser('email') email: string,
+    @Req() req: Request,
   ) {
-    console.log('Refreshing tokens for user:', userId, email);
     return this.authService.refreshTokens(userId, email);
   }
 }

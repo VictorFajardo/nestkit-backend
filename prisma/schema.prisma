@@ -29,11 +29,11 @@ enum Role {
 
 model AuditLog {
   id        String   @id @default(uuid())
-  userId    String? // Nullable in case the user is not authenticated
+  userId    String
   action    String
-  resource  String?
+  context   String
   metadata  Json?
   timestamp DateTime @default(now())
 
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
