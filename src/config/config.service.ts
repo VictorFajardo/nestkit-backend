@@ -1,13 +1,31 @@
+import * as fs from 'fs';
 import { EnvKey } from '@common/constants/env-keys.enum';
 import { validatedEnv } from './validate-env';
 import { Injectable } from '@nestjs/common';
-
 @Injectable()
 export class ConfigService {
   constructor() {}
 
+  private tryLoadDockerSecret(secretPath: string): string | undefined {
+    try {
+      return fs.readFileSync(secretPath, 'utf8').trim();
+    } catch {
+      return undefined;
+    }
+  }
+
   get<T = string>(key: EnvKey): T {
-    const value = validatedEnv[key];
+    const secretOverrides: Partial<Record<EnvKey, string>> = {
+      [EnvKey.JWT_SECRET]: this.tryLoadDockerSecret('/run/secrets/jwt_secret'),
+      [EnvKey.JWT_REFRESH_SECRET]: this.tryLoadDockerSecret(
+        '/run/secrets/jwt_refresh_secret',
+      ),
+      [EnvKey.DATABASE_URL]: this.tryLoadDockerSecret(
+        '/run/secrets/database_url',
+      ),
+    };
+
+    const value = secretOverrides[key] ?? validatedEnv[key];
     if (value === undefined || value === null) {
       throw new Error(`Missing environment variable: ${key}`);
     }
@@ -18,7 +36,6 @@ export class ConfigService {
     return validatedEnv[key] as T | undefined;
   }
 
-  // Common configuration getters
   get jwtSecret(): string {
     return this.get(EnvKey.JWT_SECRET);
   }
