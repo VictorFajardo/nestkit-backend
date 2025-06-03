@@ -12,6 +12,7 @@ import { PrismaService } from '@prisma/prisma.service';
 import { UsersService } from '@users/users.service';
 import { HashService } from './hash/hash.service';
 import { RefreshTokenStrategy } from './strategies/refresh.strategy';
+import { AuditLogService } from '@audit-log/audit-log.service';
 
 @Module({
   imports: [PassportModule, JwtModule.register({}), UsersModule, ConfigModule],
@@ -25,6 +26,7 @@ import { RefreshTokenStrategy } from './strategies/refresh.strategy';
     PrismaService,
     UsersService,
     HashService,
+    AuditLogService,
   ],
   exports: [AuthService],
 })

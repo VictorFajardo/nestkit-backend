@@ -5,6 +5,8 @@ import { LoginDto } from './dto/login.dto';
 import { HashService } from './hash/hash.service';
 import { TokenService } from './token/token.service';
 import { AuthDto } from './dto/auth.dto';
+import { AuditLogService } from '@audit-log/audit-log.service';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +14,7 @@ export class AuthService {
     private prisma: PrismaService,
     private hashService: HashService,
     private tokenService: TokenService,
+    private auditLogService: AuditLogService,
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthDto> {
@@ -41,15 +44,14 @@ export class AuthService {
     };
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, req?: Request) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
-    if (
-      !user ||
-      !(await this.hashService.compareData(dto.password, user.password))
-    ) {
+    const passwordValid =
+      user && (await this.hashService.compareData(dto.password, user.password));
+    if (!user || !passwordValid) {
       throw new ForbiddenException('Invalid credentials');
     }
 
@@ -59,6 +61,12 @@ export class AuthService {
       user.role,
     );
     await this.tokenService.updateRefreshToken(user.id, tokens.refresh_token);
+
+    await this.auditLogService.log(user.id, 'auth.login', {
+      email: user.email,
+      ip: req?.ip || 'unknown',
+      userAgent: req?.headers?.['user-agent'] || 'unknown',
+    });
 
     return tokens;
   }

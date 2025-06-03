@@ -19,7 +19,8 @@
       "@common/*": ["common/*"],
       "@prisma/*": ["prisma/*"],
       "@token/*": ["token/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@audit-log/*": ["audit-log/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
