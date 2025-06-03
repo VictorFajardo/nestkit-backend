@@ -53,7 +53,11 @@ export class AuthService {
       throw new ForbiddenException('Invalid credentials');
     }
 
-    const tokens = await this.tokenService.generateTokens(user.id, user.email);
+    const tokens = await this.tokenService.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+    );
     await this.tokenService.updateRefreshToken(user.id, tokens.refresh_token);
 
     return tokens;
@@ -69,10 +73,11 @@ export class AuthService {
       throw new ForbiddenException('Access Denied');
     }
 
-    // Optionally: re-verify refresh token from db
-    // This is unnecessary if RefreshAuthGuard already verifies it via `tokenService.verifyRefreshToken()`
-
-    const tokens = await this.tokenService.generateTokens(user.id, user.email);
+    const tokens = await this.tokenService.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+    );
     await this.tokenService.updateRefreshToken(user.id, tokens.refresh_token);
 
     return tokens;

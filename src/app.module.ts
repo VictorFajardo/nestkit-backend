@@ -17,6 +17,9 @@ import { PrismaService } from '@prisma/prisma.service';
 import { THROTTLER_CONFIG, throttlerConfig } from '@config/throttler.config';
 import { ThrottlerUserGuard } from '@common/guards/throttler-user.guard';
 import { HealthModule } from 'health/health.module';
+import { ConfigModule } from '@config/config.module';
+import { RolesGuard } from '@common/decorators/guards/roles.guard';
+import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -31,6 +34,7 @@ import { HealthModule } from 'health/health.module';
   providers: [
     AppService,
     PrismaService,
+    ConfigModule,
     {
       provide: THROTTLER_CONFIG,
       useValue: throttlerConfig,
@@ -38,6 +42,14 @@ import { HealthModule } from 'health/health.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerUserGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })

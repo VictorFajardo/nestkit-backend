@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@config/config.service';
 import { PrismaService } from '@prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class TokenService {
@@ -15,17 +16,18 @@ export class TokenService {
   async generateTokens(
     userId: string,
     email: string,
+    role: Role,
   ): Promise<{ access_token: string; refresh_token: string }> {
     const [access_token, refresh_token] = await Promise.all([
       this.jwt.signAsync(
-        { sub: userId, email },
+        { sub: userId, email, role },
         {
           secret: this.config.jwtSecret,
           expiresIn: this.config.jwtExpiresIn,
         },
       ),
       this.jwt.signAsync(
-        { sub: userId, email },
+        { sub: userId, email, role },
         {
           secret: this.config.jwtRefreshSecret,
           expiresIn: this.config.jwtRefreshExpiresIn,

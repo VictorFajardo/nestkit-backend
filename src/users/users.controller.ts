@@ -14,6 +14,7 @@ import { GetUser } from '@common/decorators/get-user.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiCreatedResponse } from '@nestjs/swagger';
+import { Roles } from '@common/decorators/roles.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('user')
@@ -21,7 +22,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
@@ -40,7 +41,8 @@ export class UsersController {
     return this.usersService.update(userId, dto);
   }
 
-  @Get('all') // Optional: admin-only route
+  @Roles('ADMIN')
+  @Get('all')
   async getAllUsers() {
     return this.usersService.getAll();
   }

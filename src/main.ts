@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -11,6 +11,8 @@ import { helmetOptions } from '@config/helmet.config';
 import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
 import { GlobalExceptionFilter } from '@common/filters/http-exception.filter';
 import { PrismaExceptionFilter } from '@common/filters/prisma-exception.filter';
+import { RolesGuard } from '@common/decorators/guards/roles.guard';
+import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 
 async function bootstrap() {
   console.log('🚀 DB URL:', process.env.DATABASE_URL);
@@ -19,7 +21,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: appLogger,
   });
-
+  const reflector = app.get(Reflector);
   const config = new DocumentBuilder()
     .setTitle('My API')
     .setDescription('API documentation')
@@ -44,7 +46,7 @@ async function bootstrap() {
     new GlobalExceptionFilter(),
     new PrismaExceptionFilter(),
   );
-
+  app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
   app.use(helmet(helmetOptions));
   app.enableCors(CorsConfig);
   app.disable('x-powered-by');
