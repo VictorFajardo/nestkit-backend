@@ -20,6 +20,7 @@ import { HealthModule } from 'health/health.module';
 import { ConfigModule } from '@config/config.module';
 import { RolesGuard } from '@common/decorators/guards/roles.guard';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
+import { AuditLogModule } from '@audit-log/audit-log.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
     AiModule,
     LoggerModule,
     HealthModule,
+    AuditLogModule,
     ThrottlerModule.forRoot(throttlerConfig),
   ],
   controllers: [AppController],

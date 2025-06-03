@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuditLogService } from '@audit-log/audit-log.service';
 import { AuditAction, AuditContext } from '@common/constants/audit.enum';
+import { getChangedFields } from '@common/utils/diff-fields.util';
 
 @Injectable()
 export class UsersService {
@@ -64,12 +65,14 @@ export class UsersService {
       },
     });
 
+    const changedFields = getChangedFields(user, dto);
+
     await this.auditLogService.logEvent({
       userId,
       action: AuditAction.USER_UPDATED,
       context: AuditContext.USER,
       metadata: {
-        updatedFields: Object.keys(dto),
+        updatedFields: changedFields,
       },
     });
 

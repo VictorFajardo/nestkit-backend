@@ -15,8 +15,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiCreatedResponse } from '@nestjs/swagger';
 import { Roles } from '@common/decorators/roles.decorator';
+import { RolesGuard } from '@common/decorators/guards/roles.guard';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

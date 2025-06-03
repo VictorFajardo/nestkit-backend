@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { AuditAction, AuditContext } from '@common/constants/audit.enum'; // Optional: use enums for type safety
+import { QueryAuditDto } from './dto/query-audit.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuditLogService {
@@ -38,5 +40,36 @@ export class AuditLogService {
         error.stack,
       );
     }
+  }
+
+  async getAuditLogs(query: QueryAuditDto) {
+    const {
+      skip = 0,
+      take = 20,
+      from,
+      to,
+      search,
+      action,
+      context,
+      userId,
+    } = query;
+
+    const conditions: string[] = [];
+
+    if (from) conditions.push(`"timestamp" >= '${from}'`);
+    if (to) conditions.push(`"timestamp" <= '${to}'`);
+    if (action) conditions.push(`"action" = '${action}'`);
+    if (context) conditions.push(`"context" = '${context}'`);
+    if (userId) conditions.push(`"userId" = '${userId}'`);
+    if (search)
+      conditions.push(`LOWER(metadata::text) LIKE LOWER('%${search}%')`);
+
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(' AND ')}`
+      : '';
+
+    return this.prisma.$queryRawUnsafe(
+      `SELECT * FROM "AuditLog" ${whereClause} ORDER BY "timestamp" DESC LIMIT ${take} OFFSET ${skip}`,
+    );
   }
 }
