@@ -19,6 +19,7 @@
     "SUPERADMIN",
     "unallowed",
     "uuidv",
-    "WAITFORIT"
+    "WAITFORIT",
+    "wrongpass"
   ]
 }

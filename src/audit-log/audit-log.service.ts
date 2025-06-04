@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@prisma/prisma.service';
+import { PrismaService } from '@prisma-local/prisma.service';
 import { AuditAction, AuditContext } from '@common/constants/audit.enum'; // Optional: use enums for type safety
 import { QueryAuditDto } from './dto/query-audit.dto';
 import { Prisma } from '@prisma/client';

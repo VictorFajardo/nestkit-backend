@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import { PrismaService } from '@prisma/prisma.service';
+import { PrismaService } from '@prisma-local/prisma.service';
 import { AuditLogService } from '@audit-log/audit-log.service';
 import { NotFoundException } from '@nestjs/common';
 import { AuditAction, AuditContext } from '@common/constants/audit.enum';

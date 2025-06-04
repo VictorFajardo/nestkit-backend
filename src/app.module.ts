@@ -6,17 +6,17 @@ import {
 } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { AuthModule } from '@auth/auth.module';
+import { UsersModule } from '@users/users.module';
 import { AiModule } from './ai/ai.module';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, Reflector } from '@nestjs/core';
 import { LoggerMiddleware } from '@common/middleware/logger.middleware';
-import { LoggerModule } from 'logger/logger.module';
-import { PrismaService } from '@prisma/prisma.service';
+import { LoggerModule } from '@logger/logger.module';
+import { PrismaService } from '@prisma-local/prisma.service';
 import { THROTTLER_CONFIG, throttlerConfig } from '@config/throttler.config';
 import { ThrottlerUserGuard } from '@common/guards/throttler-user.guard';
-import { HealthModule } from 'health/health.module';
+import { HealthModule } from '@health/health.module';
 import { ConfigModule } from '@config/config.module';
 import { RolesGuard } from '@common/decorators/guards/roles.guard';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
@@ -47,7 +47,8 @@ import { AuditLogModule } from '@audit-log/audit-log.module';
     },
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard,
+      useFactory: (reflector: Reflector) => new JwtAuthGuard(reflector),
+      inject: [Reflector],
     },
     {
       provide: APP_GUARD,

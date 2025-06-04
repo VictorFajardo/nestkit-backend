@@ -18,7 +18,9 @@
       "@auth/*": ["auth/*"],
       "@users/*": ["users/*"],
       "@common/*": ["common/*"],
-      "@prisma/*": ["prisma/*"],
+      "@prisma-local/*": ["prisma/*"],
+      "@logger/*": ["logger/*"],
+      "@health/*": ["health/*"],
       "@token/*": ["token/*"],
       "@utils/*": ["utils/*"],
       "@audit-log/*": ["audit-log/*"]

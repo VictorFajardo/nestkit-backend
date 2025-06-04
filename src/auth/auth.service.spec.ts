@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { PrismaService } from '@prisma/prisma.service';
+import { PrismaService } from '@prisma-local/prisma.service';
 import { HashService } from './hash/hash.service';
 import { TokenService } from './token/token.service';
 import { AuditLogService } from '@audit-log/audit-log.service';

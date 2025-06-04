@@ -18,7 +18,7 @@ const config: Config = {
     '^@auth/(.*)$': '<rootDir>/auth/$1',
     '^@users/(.*)$': '<rootDir>/users/$1',
     '^@common/(.*)$': '<rootDir>/common/$1',
-    '^@prisma/(?!client)(.*)$': '<rootDir>/prisma/$1',
+    '^@prisma-local/(?!client)(.*)$': '<rootDir>/prisma/$1',
     '^@token/(.*)$': '<rootDir>/token/$1',
     '^@utils/(.*)$': '<rootDir>/utils/$1',
     '^@audit-log/(.*)$': '<rootDir>/audit-log/$1',
