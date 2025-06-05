@@ -1,4 +1,7 @@
-import { WinstonModuleOptions } from 'nest-winston';
+import {
+  WinstonModuleOptions,
+  utilities as nestWinstonModuleUtilities,
+} from 'nest-winston';
 import * as winston from 'winston';
 
 export const winstonConfig: WinstonModuleOptions = {
@@ -6,8 +9,8 @@ export const winstonConfig: WinstonModuleOptions = {
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.printf(({ level, message, timestamp }) => {
-          return `${timestamp} [${level}] ${message}`;
+        nestWinstonModuleUtilities.format.nestLike('MyApp', {
+          prettyPrint: true,
         }),
       ),
     }),

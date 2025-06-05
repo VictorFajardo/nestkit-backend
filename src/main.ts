@@ -1,8 +1,10 @@
+// src/main.ts
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
+import morgan from 'morgan';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppLogger } from '@common/logger/logger.service';
 import { AppConfig } from '@config/app.config';
@@ -17,10 +19,21 @@ import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 async function bootstrap() {
   console.log('🚀 DB URL:', process.env.DATABASE_URL);
   console.log('🚀 Effective PORT:', process.env.PORT);
+
   const appLogger = new AppLogger();
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: appLogger,
   });
+
+  const logger = new Logger('HTTP');
+  app.use(
+    morgan('combined', {
+      stream: {
+        write: (message: string) => logger.log(message.trim()),
+      },
+    }),
+  );
+
   const reflector = app.get(Reflector);
   const config = new DocumentBuilder()
     .setTitle('My API')
@@ -40,12 +53,14 @@ async function bootstrap() {
       },
     }),
   );
+
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(
     new GlobalExceptionFilter(),
     new PrismaExceptionFilter(),
   );
   app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
+
   app.disable('x-powered-by');
   app.set('trust proxy', 1);
   app.enableShutdownHooks();
