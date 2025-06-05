@@ -1,25 +1,29 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { v4 as uuidv4 } from 'uuid';
-import { Logger } from '@nestjs/common';
+import { MetricsService } from '@app/common/metrics/metrics.service';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  private logger = new Logger('HTTP');
+  private readonly logger = new Logger('HTTP');
 
-  use(req: Request, res: Response, next: NextFunction): void {
-    const requestId = uuidv4();
+  constructor(private readonly metricsService: MetricsService) {}
+
+  use(req: Request, res: Response, next: NextFunction) {
+    const { method, originalUrl } = req;
+
     const start = Date.now();
 
-    req.headers['x-request-id'] = requestId;
-
     res.on('finish', () => {
-      const duration = Date.now() - start;
+      const { statusCode } = res;
+      const responseTime = Date.now() - start;
 
+      // Log HTTP request info
       this.logger.log(
-        'info',
-        `${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms [request-id: ${requestId}]`,
+        `${method} ${originalUrl} ${statusCode} - ${responseTime}ms`,
       );
+
+      // Increment metrics counter
+      this.metricsService.increment(method, originalUrl, statusCode.toString());
     });
 
     next();

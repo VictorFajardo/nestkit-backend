@@ -10,7 +10,7 @@ import { AuthModule } from '@auth/auth.module';
 import { UsersModule } from '@users/users.module';
 import { AiModule } from './ai/ai.module';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD, Reflector } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
 import { LoggerMiddleware } from '@common/middleware/logger.middleware';
 import { LoggerModule } from '@logger/logger.module';
 import { PrismaService } from '@prisma-local/prisma.service';
@@ -21,6 +21,7 @@ import { ConfigModule } from '@config/config.module';
 import { RolesGuard } from '@common/decorators/guards/roles.guard';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { AuditLogModule } from '@audit-log/audit-log.module';
+import { MetricsModule } from '@common/metrics/metrics.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AuditLogModule } from '@audit-log/audit-log.module';
     AiModule,
     LoggerModule,
     HealthModule,
+    MetricsModule,
     AuditLogModule,
     ThrottlerModule.forRoot(throttlerConfig),
   ],
@@ -47,8 +49,7 @@ import { AuditLogModule } from '@audit-log/audit-log.module';
     },
     {
       provide: APP_GUARD,
-      useFactory: (reflector: Reflector) => new JwtAuthGuard(reflector),
-      inject: [Reflector],
+      useClass: JwtAuthGuard,
     },
     {
       provide: APP_GUARD,
