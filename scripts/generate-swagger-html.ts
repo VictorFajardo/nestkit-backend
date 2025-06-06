@@ -1,4 +1,5 @@
-import { writeFileSync } from 'fs';
+import 'tsconfig-paths/register';
+import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { INestApplication } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestFactory } from '@nestjs/core';
@@ -16,7 +17,13 @@ async function generateSwaggerJson() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  const outputPath = resolve(__dirname, '../docs/swagger.json');
+
+  const docsDir = resolve(__dirname, '../docs');
+  if (!existsSync(docsDir)) {
+    mkdirSync(docsDir);
+  }
+
+  const outputPath = resolve(docsDir, 'swagger.json');
   writeFileSync(outputPath, JSON.stringify(document, null, 2));
   await app.close();
 }
