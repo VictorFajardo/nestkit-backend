@@ -12,12 +12,12 @@ export class RegisterDto {
   @IsEmail()
   @MinLength(5)
   @ApiProperty({ example: 'user@example.com' })
-  email: string;
+  email!: string;
 
   @IsNotEmpty()
   @MinLength(6)
   @ApiProperty({ example: 'password123' })
-  password: string;
+  password!: string;
 
   @IsOptional()
   @IsString()

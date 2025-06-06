@@ -35,10 +35,17 @@ export class AuditLogService {
         `Audit log written: ${action} (${context}) by user ${userId}`,
       );
     } catch (error) {
-      this.logger.error(
-        `Failed to write audit log: ${error.message}`,
-        error.stack,
-      );
+      if (error instanceof Error) {
+        this.logger.error(
+          `Failed to write audit log: ${error.message}`,
+          error.stack,
+        );
+      } else {
+        this.logger.error(
+          'Failed to write audit log: Unknown error',
+          String(error),
+        );
+      }
     }
   }
 
