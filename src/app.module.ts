@@ -12,7 +12,7 @@ import { AiModule } from './ai/ai.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { LoggerMiddleware } from '@common/middleware/logger.middleware';
-import { LoggerModule } from '@logger/logger.module';
+// import { LoggerModule } from '@logger/logger.module';
 import { PrismaService } from '@prisma-local/prisma.service';
 import { THROTTLER_CONFIG, throttlerConfig } from '@config/throttler.config';
 import { ThrottlerUserGuard } from '@common/guards/throttler-user.guard';
@@ -29,7 +29,7 @@ import { RequestContextService } from './common/context/request-context.service'
     AuthModule,
     UsersModule,
     AiModule,
-    LoggerModule,
+    // LoggerModule,
     HealthModule,
     MetricsModule,
     AuditLogModule,
