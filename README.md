@@ -1,154 +1,40 @@
-# NestKit Boilerplate
+# Swagger UI Dist
+[![NPM version](https://badge.fury.io/js/swagger-ui-dist.svg)](http://badge.fury.io/js/swagger-ui-dist)
 
-[![CI](https://github.com/VictorFajardo/nestkit-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/VictorFajardo/nestkit-backend/actions/workflows/ci.yml)
-[![Coverage Status](https://codecov.io/github/VictorFajardo/nestkit-backend/graph/badge.svg?token=31ZT244MDH)](https://codecov.io/github/VictorFajardo/nestkit-backend)
-[![License](https://img.shields.io/github/license/VictorFajardo/nestkit-backend.svg)](LICENSE)
-[![Node](https://img.shields.io/badge/node-20.x-green.svg)](https://nodejs.org/)
-[![Built With](https://img.shields.io/badge/built%20with-NestJS-red.svg)](https://nestjs.com/)
+## Anonymized analytics
 
-> 🛠️ Production-ready NestJS starter kit with authentication, RBAC, audit logging, observability, e2e testing, and CI.
-
----
-
-## 🚀 Features
-
-- 🔐 **JWT Auth** with access/refresh token flow
-- 🧑‍⚖️ **RBAC** role-based permissions (e.g., admin, user)
-- 🧾 **Audit Logging** for login, logout, profile updates, etc.
-- 📊 **Prometheus Metrics** with request histograms/counters
-- 🧪 **Unit + E2E tests** using Jest and Supertest
-- 🐘 **PostgreSQL** via Prisma ORM
-- ☁️ **Dockerized** with dev and prod workflows
-- 📦 **Modular architecture** ready for domain-driven expansion
-- 📄 **Swagger Docs** auto-generated with example DTOs
-- 🧹 **ESLint + Prettier** + strict TypeScript settings
-- ✅ **GitHub Actions CI** with build/lint/test/e2e checks
-
----
-
-## 📦 Getting Started
-
-### 1. Clone and install
-
-```bash
-git clone https://github.com/VictorFajardo/nestkit-boilerplate.git
-cd nestkit-boilerplate
-npm install
-```
-
-### 2. Set up `.env`
-
-```env
-# .env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nestkit
-JWT_SECRET=your_jwt_secret
-JWT_REFRESH_SECRET=your_refresh_secret
-JWT_EXPIRES_IN=3600s
-JWT_REFRESH_EXPIRES_IN=7d
-PORT=3000
-```
-
-### 3. Run with Docker
-
-```bash
-docker compose up --build
-```
-
-Or run locally with hot reload:
-
-```bash
-npm run start:dev
-```
-
----
-
-## 🧪 Testing
-
-```bash
-# Unit tests
-npm run test
-
-# E2E tests
-npm run test:e2e
-
-# Coverage
-npm run test:cov
-```
-
----
-
-## 🧰 Useful Commands
-
-```bash
-# Lint
-npm run lint
-
-# Format
-npm run format
-
-# Migrate database
-npx prisma migrate dev
-
-# Seed dev data
-npm run seed
-
-# Generate Swagger JSON
-npm run export:swagger
-```
-
----
-
-## 📘 API Documentation
-
-Swagger UI available at: [http://localhost:3000/api](http://localhost:3000/api)
-
-Exported docs:
-
-```bash
-npm run export:swagger
-```
-
----
-
-## 📁 Project Structure
+SwaggerUI Dist uses [Scarf](https://scarf.sh/) to collect [anonymized installation analytics](https://github.com/scarf-sh/scarf-js?tab=readme-ov-file#as-a-user-of-a-package-using-scarf-js-what-information-does-scarf-js-send-about-me). These analytics help support the maintainers of this library and ONLY run during installation. To [opt out](https://github.com/scarf-sh/scarf-js?tab=readme-ov-file#as-a-user-of-a-package-using-scarf-js-how-can-i-opt-out-of-analytics), you can set the `scarfSettings.enabled` field to `false` in your project's `package.json`:
 
 ```
-src/
-  ├── auth/          # Auth + JWT + refresh
-  ├── users/         # User CRUD
-  ├── common/        # Shared filters, guards, interceptors
-  ├── audit-log/     # Audit trail logging
-  ├── health/        # Health check endpoint
-  ├── logger/        # Winston logger setup
-  ├── config/        # Config + env validation
-  └── main.ts        # App entrypoint
+// package.json
+{
+  // ...
+  "scarfSettings": {
+    "enabled": false
+  }
+  // ...
+}
 ```
 
----
+Alternatively, you can set the environment variable `SCARF_ANALYTICS` to `false` as part of the environment that installs your npm packages, e.g., `SCARF_ANALYTICS=false npm install`.
 
-## ✅ GitHub Actions CI
 
-Runs on every push/pull request to `main`:
+# API
 
-- Lint
-- Unit tests
-- E2E tests (with PostgreSQL service)
-- Build
+This module, `swagger-ui-dist`, exposes Swagger-UI's entire dist folder as a dependency-free npm module.
+Use `swagger-ui` instead, if you'd like to have npm install dependencies for you.
 
-Check `.github/workflows/ci.yml` for config.
+`SwaggerUIBundle` and `SwaggerUIStandalonePreset` can be imported:
+```javascript
+  import { SwaggerUIBundle, SwaggerUIStandalonePreset } from "swagger-ui-dist"
+```
 
----
+To get an absolute path to this directory for static file serving, use the exported `getAbsoluteFSPath` method:
 
-## 🔐 Security
+```javascript
+const swaggerUiAssetPath = require("swagger-ui-dist").getAbsoluteFSPath()
 
-- CORS enabled
-- Helmet headers
-- Rate limiting
-- HPP protection
-- `.env` validation at startup
+// then instantiate server that serves files from the swaggerUiAssetPath
+```
 
----
-
-## 📄 License
-
-MIT © [Victor Fajardo](https://github.com/VictorFajardo)
+For anything else, check the [Swagger-UI](https://github.com/swagger-api/swagger-ui) repository.
