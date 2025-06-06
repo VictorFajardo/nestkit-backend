@@ -1,177 +1,154 @@
+# NestKit Boilerplate
+
 [![CI](https://github.com/VictorFajardo/nestkit-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/VictorFajardo/nestkit-backend/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/VictorFajardo/nestkit-backend/badge.svg?branch=main)](https://coveralls.io/github/VictorFajardo/nestkit-backend?branch=main)
+[![License](https://img.shields.io/github/license/VictorFajardo/nestkit-backend.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-20.x-green.svg)](https://nodejs.org/)
+[![Built With](https://img.shields.io/badge/built%20with-NestJS-red.svg)](https://nestjs.com/)
 
-# NestKit Backend Boilerplate
-
-A production-ready NestJS backend starter with:
-
-- Authentication (JWT)
-- Role-based access control
-- Audit logging
-- Swagger documentation
-- Observability (metrics, health)
-- Testing (unit + e2e)
-- Dockerized local dev and production support
+> 🛠️ Production-ready NestJS starter kit with authentication, RBAC, audit logging, observability, e2e testing, and CI.
 
 ---
 
-## 🚀 Project Structure
+## 🚀 Features
+
+- 🔐 **JWT Auth** with access/refresh token flow
+- 🧑‍⚖️ **RBAC** role-based permissions (e.g., admin, user)
+- 🧾 **Audit Logging** for login, logout, profile updates, etc.
+- 📊 **Prometheus Metrics** with request histograms/counters
+- 🧪 **Unit + E2E tests** using Jest and Supertest
+- 🐘 **PostgreSQL** via Prisma ORM
+- ☁️ **Dockerized** with dev and prod workflows
+- 📦 **Modular architecture** ready for domain-driven expansion
+- 📄 **Swagger Docs** auto-generated with example DTOs
+- 🧹 **ESLint + Prettier** + strict TypeScript settings
+- ✅ **GitHub Actions CI** with build/lint/test/e2e checks
+
+---
+
+## 📦 Getting Started
+
+### 1. Clone and install
 
 ```bash
-.
-├── src/                  # Main application source
-│   ├── auth/             # JWT auth, guards, roles
-│   ├── users/            # User module, RBAC
-│   ├── audit-log/        # Field-level audit diffs
-│   └── main.ts           # App bootstrap
-├── prisma/               # Prisma schema + migrations
-├── scripts/              # Entrypoint, wait-for-it
-├── test/                 # Unit and e2e tests
-├── Dockerfile            # Dev Dockerfile
-├── Dockerfile.prod       # Production Dockerfile
-├── docker-compose.yml    # Dev environment
-├── docker-compose.prod.yml # Production environment
-├── .env                  # Local environment variables
-└── README.md             # This file
+git clone https://github.com/VictorFajardo/nestkit-boilerplate.git
+cd nestkit-boilerplate
+npm install
+```
+
+### 2. Set up `.env`
+
+```env
+# .env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nestkit
+JWT_SECRET=your_jwt_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+JWT_EXPIRES_IN=3600s
+JWT_REFRESH_EXPIRES_IN=7d
+PORT=3000
+```
+
+### 3. Run with Docker
+
+```bash
+docker compose up --build
+```
+
+Or run locally with hot reload:
+
+```bash
+npm run start:dev
 ```
 
 ---
 
-## 🧪 Local Development
-
-### Requirements
-
-- Docker + Docker Compose
-- Node.js 20+ (for local runs outside Docker)
-
-### Start Dev Stack
+## 🧪 Testing
 
 ```bash
-npm run db:up
-npm run dev
-```
-
-> Uses `Dockerfile` with `npm run start:dev`, hot reload enabled.
-
-### Prisma Workflow (Dev)
-
-```bash
-npx prisma generate         # Regenerate client
-npx prisma migrate dev      # Apply migrations locally
-npx prisma studio           # GUI for DB access
-```
-
----
-
-## 🚢 Production Build & Run
-
-### Build & Run Production Image
-
-```bash
-docker compose -f docker-compose.prod.yml up --build
-```
-
-> Uses `Dockerfile.prod`, multi-stage build, and secure config.
-
-### docker-entrypoint.sh Summary
-
-```bash
-# Entrypoint script runs:
-- wait-for-it.sh for DB readiness
-- prisma migrate deploy
-- seed script
-- launches app via node dist/src/main.js
-```
-
-> Ensure production secrets are mounted as files via Docker secrets.
-
----
-
-## 🔐 Security Features
-
-- Helmet, HPP, and CORS
-- Rate limiting on sensitive routes
-- JWT with access and refresh tokens
-- Role-based guards (`@Roles()`)
-- Environment variable validation
-
----
-
-## 🔍 Observability & Monitoring
-
-- `/health` endpoint (liveness/readiness)
-- Prometheus metrics via `prom-client` exposed at `/metrics`
-- Histogram and counter for HTTP request durations
-
----
-
-## 📜 Swagger API Docs
-
-- Accessible at `/api`
-- Shows auth-required routes with proper bearer token support
-- Includes DTO examples and response models
-
----
-
-## ✅ Testing
-
-- Jest setup for unit tests
-- `test/**/*.e2e-spec.ts` for integration tests
-- `test/helpers/` for resetting/seeding test DB
-
-```bash
+# Unit tests
 npm run test
+
+# E2E tests
 npm run test:e2e
+
+# Coverage
+npm run test:cov
 ```
-
----
-
-## 📂 Secrets Management (Production)
-
-Define each secret as a file under `./secrets/`, then Docker Compose will mount them:
-
-```bash
-secrets:
-  JWT_SECRET:
-    file: ./secrets/JWT_SECRET
-  ...
-```
-
-Inside your app, read them via:
-
-```ts
-process.env.JWT_SECRET; // loaded from Docker secrets or .env
-```
-
----
-
-## 🛠️ Deployment Notes
-
-- Secrets injection
-- Port 3000 exposed
-- PostgreSQL backend
-- Optional: Prometheus scraping `/metrics`
 
 ---
 
 ## 🧰 Useful Commands
 
 ```bash
-# Format
-npm run format
-
 # Lint
 npm run lint
 
-# Prisma
-npx prisma migrate dev
-npx prisma generate
+# Format
+npm run format
 
-# Start (prod mode locally)
-npm run build && node dist/src/main.js
+# Migrate database
+npx prisma migrate dev
+
+# Seed dev data
+npm run seed
+
+# Generate Swagger JSON
+npm run export:swagger
 ```
 
 ---
 
-## 📦 License
+## 📘 API Documentation
 
-MIT
+Swagger UI available at: [http://localhost:3000/api](http://localhost:3000/api)
+
+Exported docs:
+
+```bash
+npm run export:swagger
+```
+
+---
+
+## 📁 Project Structure
+
+```
+src/
+  ├── auth/          # Auth + JWT + refresh
+  ├── users/         # User CRUD
+  ├── common/        # Shared filters, guards, interceptors
+  ├── audit-log/     # Audit trail logging
+  ├── health/        # Health check endpoint
+  ├── logger/        # Winston logger setup
+  ├── config/        # Config + env validation
+  └── main.ts        # App entrypoint
+```
+
+---
+
+## ✅ GitHub Actions CI
+
+Runs on every push/pull request to `main`:
+
+- Lint
+- Unit tests
+- E2E tests (with PostgreSQL service)
+- Build
+
+Check `.github/workflows/ci.yml` for config.
+
+---
+
+## 🔐 Security
+
+- CORS enabled
+- Helmet headers
+- Rate limiting
+- HPP protection
+- `.env` validation at startup
+
+---
+
+## 📄 License
+
+MIT © [Your Name](https://github.com/VictorFajardo)
