@@ -1,6 +1,7 @@
 # NestKit Boilerplate
 
 [![CI](https://github.com/VictorFajardo/nestkit-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/VictorFajardo/nestkit-backend/actions/workflows/ci.yml)
+[![Swagger Docs](https://img.shields.io/badge/docs-swagger-blue)](https://victorfajardo.github.io/nestkit-backend/)
 [![Coverage Status](https://codecov.io/github/VictorFajardo/nestkit-backend/graph/badge.svg?token=31ZT244MDH)](https://codecov.io/github/VictorFajardo/nestkit-backend)
 [![License](https://img.shields.io/github/license/VictorFajardo/nestkit-backend.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-20.x-green.svg)](https://nodejs.org/)
