@@ -1,3 +1,5 @@
+[![CI](https://github.com/VictorFajardo/nestkit-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/VictorFajardo/nestkit-backend/actions/workflows/ci.yml)
+
 # NestKit Backend Boilerplate
 
 A production-ready NestJS backend starter with:
