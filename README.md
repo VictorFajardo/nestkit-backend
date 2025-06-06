@@ -144,14 +144,10 @@ process.env.JWT_SECRET; // loaded from Docker secrets or .env
 
 ## 🛠️ Deployment Notes
 
-You can deploy this stack to any container-based platform (Fly.io, AWS ECS, Render, etc.) with:
-
 - Secrets injection
 - Port 3000 exposed
 - PostgreSQL backend
 - Optional: Prometheus scraping `/metrics`
-
-Let me know if you want a Fly.io or Render deploy guide!
 
 ---
 
@@ -171,21 +167,6 @@ npx prisma generate
 # Start (prod mode locally)
 npm run build && node dist/src/main.js
 ```
-
----
-
-## ✅ Checklist Coverage
-
-- [x] JWT auth + refresh
-- [x] Role-based guards
-- [x] Swagger with bearer token support
-- [x] Audit logs with field diffs
-- [x] Health checks and Prometheus metrics
-- [x] Prisma migrations and seed
-- [x] Unit + e2e tests
-- [x] Docker dev/prod workflows
-- [x] Secrets via Docker secrets
-- [x] CI-ready structure
 
 ---
 
