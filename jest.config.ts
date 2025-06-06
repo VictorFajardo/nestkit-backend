@@ -23,7 +23,6 @@ const config: Config = {
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
-  collectCoverage: true,
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/main.ts',

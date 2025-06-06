@@ -74,5 +74,10 @@ jobs:
       - name: Run e2e tests
         run: npm run test:e2e
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Build app
         run: npm run build
