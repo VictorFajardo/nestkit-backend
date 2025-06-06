@@ -22,6 +22,7 @@ import { RolesGuard } from '@common/decorators/guards/roles.guard';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { AuditLogModule } from '@audit-log/audit-log.module';
 import { MetricsModule } from '@common/metrics/metrics.module';
+import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
 @Module({
   imports: [
@@ -59,7 +60,7 @@ import { MetricsModule } from '@common/metrics/metrics.module';
 })
 export class AppModule implements NestModule, OnApplicationShutdown {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
+    consumer.apply(RequestIdMiddleware, LoggerMiddleware).forRoutes('*');
   }
 
   onApplicationShutdown(signal: string) {
