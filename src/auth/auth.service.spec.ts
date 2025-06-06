@@ -1,4 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { PrismaService } from '@prisma-local/prisma.service';
 import { HashService } from './hash/hash.service';

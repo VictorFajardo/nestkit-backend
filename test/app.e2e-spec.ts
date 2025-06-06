@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { MockGuard } from './utils/mock.guard';
 import { TestHelper } from './utils/test-helper';

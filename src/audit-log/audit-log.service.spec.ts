@@ -1,4 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { AuthService } from '@auth/auth.service';
 import { PrismaService } from '@prisma-local/prisma.service';
 import { HashService } from '@auth/hash/hash.service';
