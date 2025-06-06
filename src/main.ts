@@ -34,11 +34,19 @@ async function bootstrap() {
   );
   const reflector = app.get(Reflector);
   const config = new DocumentBuilder()
-    .setTitle('My API')
-    .setDescription('Backend API for NestKit')
+    .setTitle('NestKit API')
+    .setDescription(
+      'Production-ready NestJS boilerplate with authentication, RBAC, auditing, and metrics.',
+    )
     .setVersion('1.0')
     .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        in: 'header',
+      },
       'access-token',
     )
     .build();

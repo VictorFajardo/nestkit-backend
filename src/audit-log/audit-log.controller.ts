@@ -9,12 +9,13 @@ import {
   ApiBody,
   ApiOperation,
   ApiResponse,
+  ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+@ApiTags('Audit Logs')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth('access-token')
-@ApiUnauthorizedResponse({ description: 'Unauthorized' })
 @Roles('ADMIN')
 @Controller('audit-logs')
 export class AuditLogController {

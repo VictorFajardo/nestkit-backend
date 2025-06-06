@@ -151,4 +151,4 @@ Check `.github/workflows/ci.yml` for config.
 
 ## 📄 License
 
-MIT © [Your Name](https://github.com/VictorFajardo)
+MIT © [Victor Fajardo](https://github.com/VictorFajardo)

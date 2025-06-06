@@ -19,13 +19,14 @@ import {
   ApiCreatedResponse,
   ApiUnauthorizedResponse,
   ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Roles } from '@common/decorators/roles.decorator';
 import { RolesGuard } from '@common/decorators/guards/roles.guard';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth('access-token')
-@ApiUnauthorizedResponse({ description: 'Unauthorized' })
+@ApiTags('Users')
 @Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
