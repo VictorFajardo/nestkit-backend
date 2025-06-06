@@ -24,7 +24,6 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: appLogger,
   });
-
   const logger = new Logger('HTTP');
   app.use(
     morgan('combined', {
@@ -33,12 +32,15 @@ async function bootstrap() {
       },
     }),
   );
-
   const reflector = app.get(Reflector);
   const config = new DocumentBuilder()
     .setTitle('My API')
-    .setDescription('API documentation')
+    .setDescription('Backend API for NestKit')
     .setVersion('1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

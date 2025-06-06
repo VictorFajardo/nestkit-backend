@@ -16,7 +16,13 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Request } from 'express';
 import { Throttle } from '@nestjs/throttler';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -41,6 +47,7 @@ export class AuthController {
     },
   })
   @ApiResponse({ status: 403, description: 'Invalid credentials' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Post('login')
   login(@Body() dto: LoginDto, @Req() req: Request) {
     return this.authService.login(dto, req);
@@ -48,12 +55,37 @@ export class AuthController {
 
   @Public()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'User registration',
+    description: 'Register a new user and return JWT tokens',
+  })
+  @ApiBody({ type: RegisterDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User has been successfully registered.',
+    schema: {
+      example: {
+        accessToken: 'string',
+        refreshToken: 'string',
+      },
+    },
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Post('register')
   register(@Body() dto: RegisterDto, @Req() req: Request) {
     return this.authService.register(dto, req);
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiOperation({
+    summary: 'User logout',
+    description: 'Logout user and invalidate tokens',
+  })
+  @ApiResponse({ status: 200, description: 'Logout successful' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @Post('logout')
   logout(@GetUser('userId') userId: string) {
     return this.authService.logout(userId);
@@ -61,6 +93,22 @@ export class AuthController {
 
   @Public()
   @UseGuards(RefreshAuthGuard)
+  @ApiBearerAuth('refresh-token')
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiOperation({
+    summary: 'Refresh tokens',
+    description: 'Refresh access and refresh tokens',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Tokens have been successfully refreshed.',
+    schema: {
+      example: {
+        accessToken: 'string',
+        refreshToken: 'string',
+      },
+    },
+  })
   @Post('refresh')
   refreshTokens(
     @GetUser('userId') userId: string,
