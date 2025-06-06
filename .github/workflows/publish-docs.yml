@@ -18,7 +18,14 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Generate Swagger JSON
+      - name: Generate Swagger docs
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/nestkit
+          JWT_SECRET: test_jwt_secret
+          JWT_REFRESH_SECRET: test_refresh_secret
+          JWT_EXPIRES_IN: 3600s
+          JWT_REFRESH_EXPIRES_IN: 7d
+          PORT: 3000
         run: npm run generate:docs
 
       - name: Copy Swagger UI
