@@ -1,111 +1,193 @@
-# NestKit Backend
+# NestKit Backend Boilerplate
 
-A scalable, production-ready NestJS boilerplate with best practices baked in: modular architecture, throttling, guards, logging, validation, Prisma, and more.
+A production-ready NestJS backend starter with:
 
-## 🚀 Features
-
-- ⚙️ Modular structure (Users, Auth, AI, etc.)
-- 🔐 JWT Auth with role-based access control
-- 📈 Rate-limiting with custom Throttler guard
-- 🧰 Prisma ORM with PostgreSQL
-- 🧪 Testing-ready (unit + e2e)
-- 📊 Swagger API docs (`/api`)
-- 🛡️ Security: Helmet, CORS, validation, exception filters
-- 📦 Scalable config management
+- Authentication (JWT)
+- Role-based access control
+- Audit logging
+- Swagger documentation
+- Observability (metrics, health)
+- Testing (unit + e2e)
+- Dockerized local dev and production support
 
 ---
 
-## 🧪 Getting Started
-
-### 1. Clone & Install
+## 🚀 Project Structure
 
 ```bash
-git clone https://github.com/your-username/nestkit-backend.git
-cd nestkit-backend
-npm install
+.
+├── src/                  # Main application source
+│   ├── auth/             # JWT auth, guards, roles
+│   ├── users/            # User module, RBAC
+│   ├── audit-log/        # Field-level audit diffs
+│   └── main.ts           # App bootstrap
+├── prisma/               # Prisma schema + migrations
+├── scripts/              # Entrypoint, wait-for-it
+├── test/                 # Unit and e2e tests
+├── Dockerfile            # Dev Dockerfile
+├── Dockerfile.prod       # Production Dockerfile
+├── docker-compose.yml    # Dev environment
+├── docker-compose.prod.yml # Production environment
+├── .env                  # Local environment variables
+└── README.md             # This file
 ```
 
-### 2. Configure `.env`
+---
 
-Create a `.env` file based on the example:
+## 🧪 Local Development
+
+### Requirements
+
+- Docker + Docker Compose
+- Node.js 20+ (for local runs outside Docker)
+
+### Start Dev Stack
 
 ```bash
-cp .env.example .env
+docker compose up --build
 ```
 
-Update values like `DATABASE_URL`, `JWT_SECRET`, etc.
+> Uses `Dockerfile` with `npm run start:dev`, hot reload enabled.
 
-### 3. Run Dev Server
+### Prisma Workflow (Dev)
 
 ```bash
-npm run start:dev
+npx prisma generate         # Regenerate client
+npx prisma migrate dev      # Apply migrations locally
+npx prisma studio           # GUI for DB access
 ```
 
 ---
 
-## 🔧 Environment Variables
+## 🚢 Production Build & Run
 
-| Variable       | Description                 | Example                        |
-| -------------- | --------------------------- | ------------------------------ |
-| `PORT`         | Port app runs on            | `3000`                         |
-| `DATABASE_URL` | Prisma DB connection        | `postgres://user:pass@host/db` |
-| `JWT_SECRET`   | Secret for JWT signing      | `supersecretkey`               |
-| `NODE_ENV`     | Environment (`dev`, `prod`) | `development`                  |
-
-See `.env.example` for a full list.
-
----
-
-## 📘 Scripts
-
-| Script       | Description                    |
-| ------------ | ------------------------------ |
-| `start:dev`  | Run in watch mode (dev)        |
-| `build`      | Compile TS -> JS               |
-| `start:prod` | Run compiled app in production |
-| `lint`       | Run ESLint                     |
-| `test`       | Run unit tests                 |
-| `test:e2e`   | Run end-to-end tests           |
-| `seed:dev`   | Seed dev database (WIP)        |
-
----
-
-## 🛠️ Tech Stack
-
-- [NestJS](https://nestjs.com/)
-- [Prisma](https://www.prisma.io/)
-- [JWT](https://jwt.io/)
-- [Swagger](https://swagger.io/)
-- [Helmet](https://helmetjs.github.io/)
-- [Winston](https://github.com/winstonjs/winston)
-
----
-
-## 🧩 Folder Structure
-
-```
-src/
-├── auth/               # Auth module
-├── users/              # Users module
-├── ai/                 # AI feature module
-├── common/             # Shared guards, filters, interceptors
-├── config/             # Centralized config files
-├── logger/             # Custom logger module
-├── prisma/             # Prisma service + client
-└── main.ts             # App bootstrap
-```
-
----
-
-## 🧪 Testing
+### Build & Run Production Image
 
 ```bash
-npm run test          # Unit tests
-npm run test:e2e      # E2E tests
+docker compose -f docker-compose.prod.yml up --build
+```
+
+> Uses `Dockerfile.prod`, multi-stage build, and secure config.
+
+### docker-entrypoint.sh Summary
+
+```bash
+# Entrypoint script runs:
+- wait-for-it.sh for DB readiness
+- prisma migrate deploy
+- seed script
+- launches app via node dist/src/main.js
+```
+
+> Ensure production secrets are mounted as files via Docker secrets.
+
+---
+
+## 🔐 Security Features
+
+- Helmet, HPP, and CORS
+- Rate limiting on sensitive routes
+- JWT with access and refresh tokens
+- Role-based guards (`@Roles()`)
+- Environment variable validation
+
+---
+
+## 🔍 Observability & Monitoring
+
+- `/health` endpoint (liveness/readiness)
+- Prometheus metrics via `prom-client` exposed at `/metrics`
+- Histogram and counter for HTTP request durations
+
+---
+
+## 📜 Swagger API Docs
+
+- Accessible at `/api`
+- Shows auth-required routes with proper bearer token support
+- Includes DTO examples and response models
+
+---
+
+## ✅ Testing
+
+- Jest setup for unit tests
+- `test/**/*.e2e-spec.ts` for integration tests
+- `test/helpers/` for resetting/seeding test DB
+
+```bash
+npm run test
+npm run test:e2e
 ```
 
 ---
 
-## 📄 License
+## 📂 Secrets Management (Production)
 
-MIT — © 2025 Your Name
+Define each secret as a file under `./secrets/`, then Docker Compose will mount them:
+
+```bash
+secrets:
+  JWT_SECRET:
+    file: ./secrets/JWT_SECRET
+  ...
+```
+
+Inside your app, read them via:
+
+```ts
+process.env.JWT_SECRET; // loaded from Docker secrets or .env
+```
+
+---
+
+## 🛠️ Deployment Notes
+
+You can deploy this stack to any container-based platform (Fly.io, AWS ECS, Render, etc.) with:
+
+- Secrets injection
+- Port 3000 exposed
+- PostgreSQL backend
+- Optional: Prometheus scraping `/metrics`
+
+Let me know if you want a Fly.io or Render deploy guide!
+
+---
+
+## 🧰 Useful Commands
+
+```bash
+# Format
+npm run format
+
+# Lint
+npm run lint
+
+# Prisma
+npx prisma migrate dev
+npx prisma generate
+
+# Start (prod mode locally)
+npm run build && node dist/src/main.js
+```
+
+---
+
+## ✅ Checklist Coverage
+
+- [x] JWT auth + refresh
+- [x] Role-based guards
+- [x] Swagger with bearer token support
+- [x] Audit logs with field diffs
+- [x] Health checks and Prometheus metrics
+- [x] Prisma migrations and seed
+- [x] Unit + e2e tests
+- [x] Docker dev/prod workflows
+- [x] Secrets via Docker secrets
+- [x] CI-ready structure
+
+---
+
+## 📦 License
+
+MIT
