@@ -1,0 +1,54 @@
+name: Publish Swagger Docs
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Generate Swagger JSON
+        run: npm run generate:docs
+
+      - name: Copy Swagger UI
+        run: |
+          mkdir -p docs
+          cp -r node_modules/swagger-ui-dist/* docs/
+          cp docs/swagger.json docs/swagger-initializer.js
+          echo "window.onload = function() {
+            window.ui = SwaggerUIBundle({
+              url: 'swagger.json',
+              dom_id: '#swagger-ui',
+              presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIStandalonePreset
+              ],
+              layout: 'BaseLayout',
+              deepLinking: true
+            });
+          };" > docs/swagger-initializer.js
+
+      - name: Commit docs
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add docs
+          git commit -m "Update Swagger docs"
+          git push
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
