@@ -44,7 +44,8 @@ A production-ready NestJS backend starter with:
 ### Start Dev Stack
 
 ```bash
-docker compose up --build
+npm run db:up
+npm run dev
 ```
 
 > Uses `Dockerfile` with `npm run start:dev`, hot reload enabled.
