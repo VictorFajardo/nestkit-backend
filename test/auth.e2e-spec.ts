@@ -54,9 +54,9 @@ describe('Auth e2e', () => {
       await request(app.getHttpServer())
         .post('/auth/register')
         .send({
-          email: TEST_USER.email,
-          password: TEST_USER.password,
-          name: TEST_USER.name,
+          email: NEW_TEST_USER.email,
+          password: NEW_TEST_USER.password,
+          name: NEW_TEST_USER.name,
         })
         .expect(403, {
           message: 'Email already in use',
