@@ -11,10 +11,12 @@ import { AppConfig } from '@config/app.config';
 import { CorsConfig } from '@config/cors.config';
 import { helmetOptions } from '@config/helmet.config';
 import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
-import { GlobalExceptionFilter } from '@common/filters/http-exception.filter';
+import { HttpExceptionFilter } from '@common/filters/http-exception.filter';
 import { PrismaExceptionFilter } from '@common/filters/prisma-exception.filter';
 import { RolesGuard } from '@common/decorators/guards/roles.guard';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
+import { RequestContextInterceptor } from './common/interceptors/request-context.interceptor';
+import { RequestContextService } from './common/context/request-context.service';
 
 async function bootstrap() {
   console.log('🚀 DB URL:', process.env.DATABASE_URL);
@@ -64,11 +66,11 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalInterceptors(new ResponseInterceptor());
-  app.useGlobalFilters(
-    new GlobalExceptionFilter(),
-    new PrismaExceptionFilter(),
+  app.useGlobalInterceptors(
+    new ResponseInterceptor(app.get(RequestContextService)),
+    new RequestContextInterceptor(app.get(RequestContextService)),
   );
+  app.useGlobalFilters(new HttpExceptionFilter(), new PrismaExceptionFilter());
   app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
 
   app.disable('x-powered-by');

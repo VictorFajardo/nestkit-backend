@@ -22,7 +22,7 @@ import { RolesGuard } from '@common/decorators/guards/roles.guard';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { AuditLogModule } from '@audit-log/audit-log.module';
 import { MetricsModule } from '@common/metrics/metrics.module';
-import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
+import { RequestContextService } from './common/context/request-context.service';
 
 @Module({
   imports: [
@@ -40,6 +40,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     AppService,
     PrismaService,
     ConfigModule,
+    RequestContextService,
     {
       provide: THROTTLER_CONFIG,
       useValue: throttlerConfig,
@@ -57,10 +58,11 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
       useClass: RolesGuard,
     },
   ],
+  exports: [PrismaService, RequestContextService],
 })
 export class AppModule implements NestModule, OnApplicationShutdown {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RequestIdMiddleware, LoggerMiddleware).forRoutes('*');
+    consumer.apply(LoggerMiddleware).forRoutes('*');
   }
 
   onApplicationShutdown(signal: string) {
