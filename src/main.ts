@@ -17,11 +17,15 @@ import { RolesGuard } from '@common/decorators/guards/roles.guard';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { RequestContextInterceptor } from './common/interceptors/request-context.interceptor';
 import { RequestContextService } from './common/context/request-context.service';
+import * as Sentry from '@sentry/node';
+import { version } from '../package.json';
+import { SentryExceptionFilter } from './common/filters/sentry-exception.filter';
 
 async function bootstrap() {
   console.log('🚀 DB URL:', process.env.DATABASE_URL);
   console.log('🚀 Effective PORT:', process.env.PORT);
 
+  const isProd = process.env.NODE_ENV === 'production';
   const appLogger = new AppLogger();
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: appLogger,
@@ -54,6 +58,15 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+  if (process.env.SENTRY_DSN) {
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.NODE_ENV,
+      release: version,
+      tracesSampleRate: 0.1,
+      enabled: isProd,
+    });
+  }
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -70,7 +83,11 @@ async function bootstrap() {
     new ResponseInterceptor(app.get(RequestContextService)),
     new RequestContextInterceptor(app.get(RequestContextService)),
   );
-  app.useGlobalFilters(new HttpExceptionFilter(), new PrismaExceptionFilter());
+  app.useGlobalFilters(
+    new HttpExceptionFilter(),
+    new PrismaExceptionFilter(),
+    new SentryExceptionFilter(),
+  );
   app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
 
   app.disable('x-powered-by');
@@ -80,7 +97,7 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
-  if (process.env.NODE_ENV === 'production') {
+  if (isProd) {
     app.use(helmet(helmetOptions));
     app.use(helmet.hidePoweredBy());
     app.enableCors(CorsConfig);
