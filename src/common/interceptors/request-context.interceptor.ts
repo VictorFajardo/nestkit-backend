@@ -5,25 +5,33 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { RequestContextService } from '../context/request-context.service';
-import { v4 as uuidv4 } from 'uuid';
+import { Response } from 'express';
 
 @Injectable()
-export class RequestContextInterceptor implements NestInterceptor {
+export class RequestContextInterceptor<T> implements NestInterceptor<T, any> {
   constructor(private readonly context: RequestContextService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const req = context.switchToHttp().getRequest();
-    const requestId = req.headers['x-request-id']?.toString() || uuidv4();
-    const userId = req.user?.id?.toString(); // now should be defined
+    const httpContext = context.switchToHttp();
+    const request = httpContext.getRequest();
+    const response = httpContext.getResponse<Response>();
+    const requestId = this.context.get('requestId');
 
-    const contextData = {
-      requestId,
-      userId,
-      path: req.path,
-      method: req.method,
-    };
-
-    return this.context.run(contextData, () => next.handle());
+    return next.handle().pipe(
+      tap(() => {
+        if (requestId) {
+          response.setHeader('X-Request-Id', requestId);
+        }
+      }),
+      map((data) => ({
+        requestId,
+        statusCode: response.statusCode,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+        data,
+      })),
+    );
   }
 }

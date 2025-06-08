@@ -19,18 +19,24 @@ import { RequestContextInterceptor } from './common/interceptors/request-context
 import { RequestContextService } from './common/context/request-context.service';
 import * as Sentry from '@sentry/node';
 import { version } from '../package.json';
-import { SentryExceptionFilter } from './common/filters/sentry-exception.filter';
 
 async function bootstrap() {
   console.log('🚀 DB URL:', process.env.DATABASE_URL);
   console.log('🚀 Effective PORT:', process.env.PORT);
 
   const isProd = process.env.NODE_ENV === 'production';
-  const appLogger = new AppLogger();
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: appLogger,
-  });
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Get instances after app creation
+  const appLogger = app.get(AppLogger);
+  const requestContext = app.get(RequestContextService);
   const logger = new Logger('HTTP');
+
+  // Replace Nest default logger with custom one
+  app.useLogger(appLogger);
+
+  // Setup morgan logging
   app.use(
     morgan('combined', {
       stream: {
@@ -38,6 +44,7 @@ async function bootstrap() {
       },
     }),
   );
+
   const reflector = app.get(Reflector);
   const config = new DocumentBuilder()
     .setTitle('NestKit API')
@@ -78,15 +85,13 @@ async function bootstrap() {
       },
     }),
   );
-
   app.useGlobalInterceptors(
-    new ResponseInterceptor(app.get(RequestContextService)),
-    new RequestContextInterceptor(app.get(RequestContextService)),
+    new ResponseInterceptor(requestContext),
+    new RequestContextInterceptor(requestContext),
   );
   app.useGlobalFilters(
-    new HttpExceptionFilter(),
+    new HttpExceptionFilter(appLogger, requestContext),
     new PrismaExceptionFilter(),
-    new SentryExceptionFilter(),
   );
   app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
 

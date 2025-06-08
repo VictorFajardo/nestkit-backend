@@ -4,13 +4,18 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import * as Sentry from '@sentry/node';
+import { AppLogger } from '@common/logger/logger.service';
+import { RequestContextService } from '@common/context/request-context.service';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(HttpExceptionFilter.name);
+  constructor(
+    private readonly logger: AppLogger,
+    private readonly context: RequestContextService,
+  ) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -29,10 +34,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
           ? exception.message
           : 'Unexpected error';
 
-    const requestId = req['requestId'] || 'unknown';
+    const requestId = this.context.requestId() ?? 'unknown';
+    const userId = this.context.userId() ?? null;
 
     const errorLog = {
       requestId,
+      userId,
       method: req.method,
       url: req.originalUrl,
       statusCode: status,
@@ -41,12 +48,29 @@ export class HttpExceptionFilter implements ExceptionFilter {
       stack: exception instanceof Error ? exception.stack : undefined,
     };
 
-    // Output JSON log
-    console.error(JSON.stringify(errorLog));
+    this.logger.error('Unhandled exception', errorLog);
+
+    // Send to Sentry only for server errors
+    if (
+      status >= 500 &&
+      process.env.SENTRY_DSN &&
+      process.env.NODE_ENV === 'production'
+    ) {
+      Sentry.captureException(exception, (scope) => {
+        scope.setTag('request_id', requestId);
+        scope.setUser(userId ? { id: userId } : null);
+        scope.setContext('request', {
+          method: req.method,
+          url: req.originalUrl,
+          body: req.body,
+        });
+        return scope;
+      });
+    }
 
     res.status(status).json({
       statusCode: status,
-      message,
+      message: typeof message === 'string' ? message : undefined,
       requestId,
     });
   }

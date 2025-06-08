@@ -23,16 +23,17 @@ import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { AuditLogModule } from '@audit-log/audit-log.module';
 import { MetricsModule } from '@common/metrics/metrics.module';
 import { RequestContextService } from './common/context/request-context.service';
+import { LoggerModule } from './common/logger/logger.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
     AiModule,
-    // LoggerModule,
     HealthModule,
     MetricsModule,
     AuditLogModule,
+    LoggerModule,
     ThrottlerModule.forRoot(throttlerConfig),
   ],
   controllers: [AppController],
