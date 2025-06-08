@@ -1,162 +1,127 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { AuthService } from '@auth/auth.service';
+import { AuditLogService } from './audit-log.service';
 import { PrismaService } from '@prisma-local/prisma.service';
-import { HashService } from '@auth/hash/hash.service';
-import { TokenService } from '@auth/token/token.service';
-import { AuditLogService } from '@audit-log/audit-log.service';
-import { ForbiddenException } from '@nestjs/common';
+import { AuditAction, AuditContext } from '@common/constants/audit.enum';
+import { Logger } from '@nestjs/common';
 
-const mockPrisma = {
-  user: {
-    findUnique: jest.fn(),
-    create: jest.fn(),
-  },
-};
-
-const mockHashService = {
-  hashData: jest.fn(),
-  compareData: jest.fn(),
-};
-
-const mockTokenService = {
-  generateTokens: jest.fn(),
-  updateRefreshToken: jest.fn(),
-  removeRefreshToken: jest.fn(),
-};
-
-const mockAuditLogService = {
-  logEvent: jest.fn(),
-};
-
-describe('AuthService', () => {
-  let service: AuthService;
+describe('AuditLogService', () => {
+  let service: AuditLogService;
+  let prisma: {
+    auditLog: { create: jest.Mock };
+    $queryRawUnsafe: jest.Mock;
+  };
 
   beforeEach(async () => {
+    prisma = {
+      auditLog: {
+        create: jest.fn(),
+      },
+      $queryRawUnsafe: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        AuthService,
-        { provide: PrismaService, useValue: mockPrisma },
-        { provide: HashService, useValue: mockHashService },
-        { provide: TokenService, useValue: mockTokenService },
-        { provide: AuditLogService, useValue: mockAuditLogService },
+        AuditLogService,
+        {
+          provide: PrismaService,
+          useValue: prisma,
+        },
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
-    jest.clearAllMocks();
+    service = module.get<AuditLogService>(AuditLogService);
+    jest.spyOn(Logger.prototype, 'debug').mockImplementation(() => {});
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
   });
 
-  describe('register', () => {
-    it('should throw if user already exists', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue({ id: 'u1' });
-      await expect(
-        service.register({
-          email: 'test@test.com',
-          password: '123',
-          name: 'Test',
-        }),
-      ).rejects.toThrow(ForbiddenException);
-    });
+  describe('logEvent', () => {
+    it('should write an audit log successfully', async () => {
+      prisma.auditLog.create.mockResolvedValue(undefined);
 
-    it('should register a new user and return basic info', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(null);
-      mockHashService.hashData.mockResolvedValue('hashed');
-      mockPrisma.user.create.mockResolvedValue({
-        id: 'u1',
-        email: 'test@test.com',
-        name: 'Test',
-        role: 'USER',
+      await service.logEvent({
+        userId: 'user1',
+        action: AuditAction.USER_UPDATED,
+        context: AuditContext.USER,
+        metadata: { field: 'name' },
       });
 
-      const result = await service.register({
-        email: 'test@test.com',
-        password: '123',
-        name: 'Test',
+      expect(prisma.auditLog.create).toHaveBeenCalledWith({
+        data: {
+          userId: 'user1',
+          action: AuditAction.USER_UPDATED,
+          context: AuditContext.USER,
+          metadata: { field: 'name' },
+        },
       });
 
-      expect(mockPrisma.user.create).toHaveBeenCalled();
-      expect(mockAuditLogService.logEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          userId: 'u1',
-          action: 'USER_REGISTERED',
-        }),
+      expect(Logger.prototype.debug).toHaveBeenCalledWith(
+        'Audit log written: USER_UPDATED (user) by user user1',
       );
-      expect(result).toEqual({
-        email: 'test@test.com',
-        name: 'Test',
-        role: 'USER',
-      });
-    });
-  });
-
-  describe('login', () => {
-    it('should throw on invalid credentials', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(null);
-      await expect(
-        service.login({ email: 'wrong@test.com', password: 'wrong' }),
-      ).rejects.toThrow(ForbiddenException);
     });
 
-    it('should return tokens on valid login', async () => {
-      const user = {
-        id: 'u1',
-        email: 'a@b.com',
-        password: 'hashed',
-        role: 'USER',
-      };
-      mockPrisma.user.findUnique.mockResolvedValue(user);
-      mockHashService.compareData.mockResolvedValue(true);
-      mockTokenService.generateTokens.mockResolvedValue({
-        access_token: 'a',
-        refresh_token: 'r',
+    it('should log error if writing audit log fails', async () => {
+      const error = new Error('DB failed');
+      prisma.auditLog.create.mockRejectedValue(error);
+
+      await service.logEvent({
+        userId: 'user1',
+        action: AuditAction.USER_CREATED,
+        context: AuditContext.USER,
       });
 
-      const result = await service.login({ email: 'a@b.com', password: '123' });
-
-      expect(mockTokenService.generateTokens).toHaveBeenCalledWith(
-        'u1',
-        'a@b.com',
-        'USER',
+      expect(Logger.prototype.error).toHaveBeenCalledWith(
+        'Failed to write audit log: DB failed',
+        error.stack,
       );
-      expect(result).toEqual({ access_token: 'a', refresh_token: 'r' });
     });
-  });
 
-  describe('logout', () => {
-    it('should call removeRefreshToken and log event', async () => {
-      await service.logout('u1');
-      expect(mockTokenService.removeRefreshToken).toHaveBeenCalledWith('u1');
-      expect(mockAuditLogService.logEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'USER_LOGGED_OUT', userId: 'u1' }),
+    it('should handle unknown error types gracefully', async () => {
+      prisma.auditLog.create.mockRejectedValue('some unknown error');
+
+      await service.logEvent({
+        userId: 'u1',
+        action: AuditAction.USER_CREATED,
+        context: AuditContext.USER,
+      });
+
+      expect(Logger.prototype.error).toHaveBeenCalledWith(
+        'Failed to write audit log: Unknown error',
+        'some unknown error',
       );
     });
   });
 
-  describe('refreshTokens', () => {
-    it('should throw if user or refresh token is missing', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(null);
-      await expect(service.refreshTokens('u1', 'a@b.com')).rejects.toThrow(
-        ForbiddenException,
-      );
+  describe('getAuditLogs', () => {
+    it('should build and run raw query with filters', async () => {
+      prisma.$queryRawUnsafe.mockResolvedValue(['log1', 'log2']);
+
+      const result = await service.getAuditLogs({
+        skip: 5,
+        take: 10,
+        from: '2024-01-01',
+        to: '2024-02-01',
+        action: AuditAction.USER_CREATED,
+        context: AuditContext.USER,
+        userId: 'u1',
+        search: 'email',
+      });
+
+      const expectedSQL = `SELECT * FROM "AuditLog" WHERE "timestamp" >= '2024-01-01' AND "timestamp" <= '2024-02-01' AND "action" = 'USER_CREATED' AND "context" = 'user' AND "userId" = 'u1' AND LOWER(metadata::text) LIKE LOWER('%email%') ORDER BY "timestamp" DESC LIMIT 10 OFFSET 5`;
+
+      expect(prisma.$queryRawUnsafe).toHaveBeenCalledWith(expectedSQL);
+      expect(result).toEqual(['log1', 'log2']);
     });
 
-    it('should refresh tokens and log event', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue({
-        id: 'u1',
-        email: 'a@b.com',
-        role: 'USER',
-        hashedRefreshToken: 'hashed',
-      });
-      mockTokenService.generateTokens.mockResolvedValue({
-        access_token: 'newA',
-        refresh_token: 'newR',
-      });
+    it('should run query without filters if none provided', async () => {
+      prisma.$queryRawUnsafe.mockResolvedValue(['log1']);
 
-      const result = await service.refreshTokens('u1', 'a@b.com');
+      const result = await service.getAuditLogs({});
 
-      expect(mockTokenService.generateTokens).toHaveBeenCalled();
-      expect(result).toEqual({ access_token: 'newA', refresh_token: 'newR' });
+      const expectedSQL = `SELECT * FROM "AuditLog"  ORDER BY "timestamp" DESC LIMIT 20 OFFSET 0`;
+
+      expect(prisma.$queryRawUnsafe).toHaveBeenCalledWith(expectedSQL);
+      expect(result).toEqual(['log1']);
     });
   });
 });

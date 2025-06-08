@@ -125,6 +125,26 @@ describe('UsersService', () => {
         }),
       );
     });
+
+    it('should log empty updatedFields if nothing changed', async () => {
+      const user = { id: 'u1', name: 'Same', email: 'same@a.com' };
+      const dto = { name: 'Same' };
+      const updated = { ...user };
+
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(user);
+      (prisma.user.update as jest.Mock).mockResolvedValue(updated);
+
+      const result = await service.update(user.id, dto);
+
+      expect(result).toEqual(updated);
+      expect(auditLogService.logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: {
+            updatedFields: {},
+          },
+        }),
+      );
+    });
   });
 
   describe('getAll', () => {
