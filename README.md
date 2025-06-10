@@ -38,17 +38,36 @@ make dev  # or use docker-compose manually
 
 ---
 
+## 🧪 Local Development
+
+```bash
+npm run db:up
+
+npm install
+npm run dev
+```
+
+---
+
+## ⚙ Seed the Database
+
+```bash
+npm run db:seed
+```
+
+---
+
 ## 🧪 Running Tests
 
 ```bash
 # Run unit and E2E tests
-yarn test
+npm run test
 
 # Run tests in watch mode
-yarn test:watch
+npm run test:watch
 
 # Run only E2E tests
-yarn test:e2e
+npm run test:e2e
 ```
 
 ---
@@ -56,7 +75,8 @@ yarn test:e2e
 ## 🧬 API Docs
 
 - Swagger: [http://localhost:3000/api](http://localhost:3000/api)
-- Health: [http://localhost:3000/health](http://localhost:3000/health)
+- Health - Live: [http://localhost:3000/health/live](http://localhost:3000/health/live)
+- Health - Ready: [http://localhost:3000/health/ready](http://localhost:3000/health/ready)
 - Metrics: [http://localhost:3000/metrics](http://localhost:3000/metrics)
 
 ---
