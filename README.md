@@ -1,6 +1,6 @@
 # NestKit Backend
 
-Production-ready NestJS boilerplate with authentication, RBAC, auditing, structured logging, metrics, and observability. Designed to impress hiring managers and accelerate backend project setup.
+Production-ready NestJS boilerplate with authentication, RBAC, auditing, structured logging, metrics, and observability.
 
 [![CI](https://github.com/VictorFajardo/nestkit-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/VictorFajardo/nestkit-backend/actions/workflows/ci.yml)
 [![Swagger Docs](https://img.shields.io/badge/docs-swagger-blue)](https://victorfajardo.github.io/nestkit-backend/)
