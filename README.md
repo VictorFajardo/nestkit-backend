@@ -33,7 +33,7 @@ Production-ready NestJS boilerplate with authentication, RBAC, auditing, structu
 git clone https://github.com/VictorFajardo/nestkit-backend.git
 cd nestkit-backend
 cp .env.example .env
-make dev  # or use docker-compose manually
+npm run db:setup  # docker-compose
 ```
 
 ---

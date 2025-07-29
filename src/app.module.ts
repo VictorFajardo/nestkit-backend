@@ -8,7 +8,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from '@auth/auth.module';
 import { UsersModule } from '@users/users.module';
-import { AiModule } from './ai/ai.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { LoggerMiddleware } from '@common/middleware/logger.middleware';
@@ -29,7 +28,6 @@ import { LoggerModule } from './common/logger/logger.module';
   imports: [
     AuthModule,
     UsersModule,
-    AiModule,
     HealthModule,
     MetricsModule,
     AuditLogModule,

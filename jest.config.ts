@@ -17,9 +17,9 @@ export const moduleNameMapper = {
 const config: Config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  rootDir: '.',
+  rootDir: './',
   testMatch: ['**/*.spec.ts'],
-  moduleFileExtensions: ['ts', 'js', 'json'],
+  moduleFileExtensions: ['ts', 'js'],
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
