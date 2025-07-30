@@ -15,8 +15,8 @@ const envSchema = z.object({
     .enum(['development', 'production', 'test'])
     .default('development'),
   PORT: z.preprocess(
-    (val) => process.env.PORT || val,
-    z.coerce.number().default(3000),
+    () => process.env.PORT ?? 3000,
+    z.coerce.number()
   ),
   DATABASE_URL: z.string().url(),
   JWT_SECRET: z.string().min(10),
