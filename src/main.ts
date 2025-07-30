@@ -112,6 +112,6 @@ async function bootstrap() {
   }
 
   await app.listen(AppConfig.port);
-  console.log(`🚀 App listening on port ${AppConfig.port}`);
+  console.log(`🚀 Effective PORT from AppConfig: ${AppConfig.port}`);
 }
 void bootstrap();
