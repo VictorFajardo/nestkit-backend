@@ -14,7 +14,6 @@
     "dev": "npm run start:dev",
     "start:dev": "nodemon --watch src --ext ts --exec ts-node -r tsconfig-paths/register src/main.ts",
     "start:prod": "node dist/main.js",
-    "prestart:prod": "npm run build",
     "db:up": "docker compose up -d db pgadmin",
     "db:down": "docker compose down",
     "prisma:generate": "npx prisma generate",
