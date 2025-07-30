@@ -111,7 +111,7 @@ async function bootstrap() {
     app.enableCors();
   }
 
-  await app.listen(AppConfig.port);
+  await app.listen(AppConfig.port || 3000);
   console.log(`🚀 Effective PORT from AppConfig: ${AppConfig.port}`);
 }
 void bootstrap();

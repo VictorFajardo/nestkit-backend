@@ -14,10 +14,7 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
-  PORT: z.preprocess(
-    () => process.env.PORT ?? 3000,
-    z.coerce.number()
-  ),
+  PORT: z.preprocess((val) => val ?? process.env.PORT, z.coerce.number()),
   DATABASE_URL: z.string().url(),
   JWT_SECRET: z.string().min(10),
 });
