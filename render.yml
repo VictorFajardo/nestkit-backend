@@ -7,8 +7,6 @@ services:
     branch: main
     buildCommand: npm ci && npm run build
     startCommand: node dist/main.js
-    build:
-      artifactPath: dist
     envVars:
       - key: NODE_ENV
         value: production
