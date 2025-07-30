@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: nestkit-backend
+    env: node
+    plan: free
+    region: virginia
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: node dist/main.js
+    build:
+      artifactPath: dist
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
