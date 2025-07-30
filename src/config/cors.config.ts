@@ -2,7 +2,7 @@ const whitelist = ['http://localhost:3000', 'https://yourfrontend.com'];
 
 export const CorsConfig = {
   origin: (
-    origin: string | undefined,
+    origin: ['https://nestkit-backend.onrender.com'],
     callback: (err: Error | null, allow?: boolean) => void,
   ) => {
     if (!origin || whitelist.includes(origin)) {
